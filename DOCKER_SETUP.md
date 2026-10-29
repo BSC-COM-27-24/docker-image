@@ -34,13 +34,23 @@ cp .env.example .env
 
 Edit `.env` and replace the placeholders, especially the database password, JWT secret, and initial admin password. For the Docker Hub Compose file, also set `DOCKERHUB_USERNAME`; `PMS_API_TAG` defaults to `main`. Email settings are optional and can remain blank while email is disabled. Never commit `.env` or send real secrets to the frontend team.
 
-## 3) Verify the Compose file
+## 3) Build the API image (optional)
 
-The project includes a `docker-compose.yml` file that defines:
+The `Dockerfile` uses the published API image (`mongola001/pms-api:main`) as its base. It does not compile the API source code; that source is not included in this repository. To create a local image based on the published image, run:
 
-- PostgreSQL database container
-- Spring Boot backend container
-- port mappings for local access
+```bash
+docker build -t pms-api-local .
+```
+
+To build from API source, use the Dockerfile and source code from the API repository instead.
+
+## 4) Start the stack
+
+The included [docker-compose.hub.yml](docker-compose.hub.yml) starts PostgreSQL and pulls the published API image. Start it with:
+
+```bash
+docker compose -f docker-compose.hub.yml up -d
+```
 
 The current configuration exposes:
 
@@ -72,43 +82,28 @@ In practical terms:
 
 This architecture keeps the database isolated from the host while allowing the app to communicate reliably inside the Compose network.
 
-## 4) Start the stack
-
-From the project root, run:
-
-```bash
-docker compose up --build -d
-```
-
-This command will:
-
-- build the backend image from the Dockerfile
-- start PostgreSQL
-- start the application
-- wire the app to the database using the internal Compose network
-
 ## 5) Check the containers
 
 ```bash
-docker compose ps
+docker compose -f docker-compose.hub.yml ps
 ```
 
 To view logs:
 
 ```bash
-docker compose logs -f
+docker compose -f docker-compose.hub.yml logs -f
 ```
 
 ## 6) Stop the stack
 
 ```bash
-docker compose down
+docker compose -f docker-compose.hub.yml down
 ```
 
 If you also want to remove the PostgreSQL data volume:
 
 ```bash
-docker compose down -v
+docker compose -f docker-compose.hub.yml down -v
 ```
 
 > Use `-v` only if you want to reset the database completely.
@@ -202,8 +197,9 @@ docker compose logs app
 ```bash
 git pull
 cp .env.example .env   # if an example env file exists in your repo
-docker compose up --build -d
-docker compose logs -f
+docker compose -f docker-compose.hub.yml pull
+docker compose -f docker-compose.hub.yml up -d
+docker compose -f docker-compose.hub.yml logs -f
 ```
 
 ## Troubleshooting
@@ -224,13 +220,13 @@ INITIAL_ADMIN_PASSWORD=
 Check whether Postgres is healthy:
 
 ```bash
-docker compose ps
+docker compose -f docker-compose.hub.yml ps
 ```
 
 Then review the app logs:
 
 ```bash
-docker compose logs app
+docker compose -f docker-compose.hub.yml logs app
 ```
 
 ### Port already in use
@@ -238,8 +234,8 @@ docker compose logs app
 Edit the port mapping in `docker-compose.yml` and restart:
 
 ```bash
-docker compose down
-docker compose up -d --build
+docker compose -f docker-compose.hub.yml down
+docker compose -f docker-compose.hub.yml up -d
 ```
 
 ## Final reminder
