@@ -185,11 +185,11 @@ Password: <DB_PASSWORD>
 
 - Always pull the latest branch before starting the project.
 - If Docker fails because env variables are missing, create or update the `.env` file.
-- If a port is already in use, change the host port in `docker-compose.yml` and then restart the containers.
+- If a port is already in use, change the host port in `docker-compose.hub.yml` and then restart the containers.
 - If the container does not start correctly, check logs with:
 
 ```bash
-docker compose logs app
+docker compose -f docker-compose.hub.yml logs app
 ```
 
 ## 9) Typical workflow
@@ -206,7 +206,7 @@ docker compose -f docker-compose.hub.yml logs -f
 
 ### Docker cannot find the `.env` values
 
-Make sure `.env` exists in the same folder as `docker-compose.yml` and contains the required keys:
+Make sure `.env` exists in the same folder as `docker-compose.hub.yml` and contains the required keys:
 
 ```env
 DB_PASSWORD=
@@ -231,7 +231,7 @@ docker compose -f docker-compose.hub.yml logs app
 
 ### Port already in use
 
-Edit the port mapping in `docker-compose.yml` and restart:
+Edit the port mapping in `docker-compose.hub.yml` and restart:
 
 ```bash
 docker compose -f docker-compose.hub.yml down
